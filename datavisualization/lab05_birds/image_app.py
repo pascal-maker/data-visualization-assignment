@@ -47,70 +47,69 @@ def detect_edges(img: Image.Image):
     # Convert to grayscale
     gray = cv2.cvtColor(img_cv, cv2.COLOR_BGR2GRAY)
     # Apply Canny Edge Detection
-    edges = cv2.Canny(gray, threshold1=100, threshold2=200)
+    edges = cv2.Canny(gray, threshold1=100, threshold2=200)#applying canny edge detection
     # Convert back to PIL Image (L mode for grayscale)
-    return Image.fromarray(edges)
+    return Image.fromarray(edges)#returning the edges
 
-def recognize_object(img: Image.Image):
-    if img is None: return "No image provided."
-    if model is None or not categories:
+def recognize_object(img: Image.Image):#function to recognize objects   
+    if img is None: return "No image provided."#if the image is None, return "No image provided."
+    if model is None or not categories:   #if the model or categories are None, return "Model or class labels failed to load."
         return "Model or class labels failed to load."
     
     # Preprocess image
-    img_tensor = preprocess(img.convert('RGB')).unsqueeze(0)
+    img_tensor = preprocess(img.convert('RGB')).unsqueeze(0)#preprocess the image
     
     # Inference
     with torch.no_grad():
-        output = model(img_tensor)
+        output = model(img_tensor)#getting the output
         
     # Get top 3 predictions
-    probabilities = torch.nn.functional.softmax(output[0], dim=0)
-    top3_prob, top3_catid = torch.topk(probabilities, 3)
+    probabilities = torch.nn.functional.softmax(output[0], dim=0)#getting the probabilities
+    top3_prob, top3_catid = torch.topk(probabilities, 3)#getting the top 3 probabilities
     
     results = {}
-    for i in range(top3_prob.size(0)):
-        cat_name = categories[top3_catid[i].item()]
-        prob = top3_prob[i].item() * 100
-        results[cat_name] = f"{prob:.2f}%"
+    for i in range(top3_prob.size(0)):#iterating through the top 3 probabilities
+        cat_name = categories[top3_catid[i].item()]#getting the category name
+        prob = top3_prob[i].item() * 100#getting the probability
+        results[cat_name] = f"{prob:.2f}%"#setting the probability
         
-    return json.dumps(results, indent=4)
+    return json.dumps(results, indent=4)#returning the results
 
 
 # Build the Gradio UI
-with gr.Blocks(theme=gr.themes.Soft()) as demo:
-    gr.Markdown("# 🖼️ Image Processing Studio")
-    gr.Markdown("Upload an image or use your webcam to process it. Choose a tool from the tabs below!")
+with gr.Blocks(theme=gr.themes.Soft()) as demo:#creating the demo
+    gr.Markdown("# 🖼️ Image Processing Studio")#setting the title
+    gr.Markdown("Upload an image or use your webcam to process it. Choose a tool from the tabs below!")#setting the description
     
     with gr.Row():
         with gr.Column(scale=1):
-            # Enabling webcam and upload sources
             input_image = gr.Image(type="pil", label="Input Image", sources=["upload", "webcam", "clipboard"])
             
         with gr.Column(scale=1):
             with gr.Tabs():
                 with gr.Tab("1. Grayscale"):
-                    gr.Markdown("Convert your image to black and white.")
-                    btn_gray = gr.Button("Convert to Grayscale", variant="primary")
-                    out_gray = gr.Image(type="pil", label="Grayscale Output", interactive=False)
-                    btn_gray.click(fn=convert_to_grayscale, inputs=input_image, outputs=out_gray)
+                    gr.Markdown("Convert your image to black and white.")#setting the title
+                    btn_gray = gr.Button("Convert to Grayscale", variant="primary")#creating the button
+                    out_gray = gr.Image(type="pil", label="Grayscale Output", interactive=False)#setting the output
+                    btn_gray.click(fn=convert_to_grayscale, inputs=input_image, outputs=out_gray)#calling the function
                     
-                with gr.Tab("2. Image Details"):
-                    gr.Markdown("Extract basic metadata like format, size, and color mode.")
-                    btn_details = gr.Button("Get Details", variant="primary")
-                    out_details = gr.Code(language="json", label="Image JSON Data")
-                    btn_details.click(fn=get_image_details, inputs=input_image, outputs=out_details)
+                with gr.Tab("2. Image Details"):#
+                    gr.Markdown("Extract basic metadata like format, size, and color mode.")#setting the title
+                    btn_details = gr.Button("Get Details", variant="primary")#creating the button
+                    out_details = gr.Code(language="json", label="Image JSON Data")#setting the output
+                    btn_details.click(fn=get_image_details, inputs=input_image, outputs=out_details)#calling the function
                     
-                with gr.Tab("3. Object Recognition (EfficientNet)"):
-                    gr.Markdown("Use an AI model (`efficientnet_b0`) to classify the main object in the image.")
-                    btn_recog = gr.Button("Recognize Object", variant="primary")
-                    out_recog = gr.Code(language="json", label="Top 3 Predictions")
-                    btn_recog.click(fn=recognize_object, inputs=input_image, outputs=out_recog)
+                with gr.Tab("3. Object Recognition (EfficientNet)"):#setting the title
+                    gr.Markdown("Use an AI model (`efficientnet_b0`) to classify the main object in the image.")#setting the description
+                    btn_recog = gr.Button("Recognize Object", variant="primary")#creating the button
+                    out_recog = gr.Code(language="json", label="Top 3 Predictions")#setting the output
+                    btn_recog.click(fn=recognize_object, inputs=input_image, outputs=out_recog)#calling the function
                     
-                with gr.Tab("Bonus: Edge Detection"):
-                    gr.Markdown("Use OpenCV Canny Edge Detection to highlight sharp edges.")
-                    btn_edges = gr.Button("Detect Edges", variant="primary")
-                    out_edges = gr.Image(type="pil", label="Edges Output", interactive=False)
-                    btn_edges.click(fn=detect_edges, inputs=input_image, outputs=out_edges)
+                with gr.Tab("Bonus: Edge Detection"):#setting the title
+                    gr.Markdown("Use OpenCV Canny Edge Detection to highlight sharp edges.")#setting the description
+                    btn_edges = gr.Button("Detect Edges", variant="primary")#creating the button
+                    out_edges = gr.Image(type="pil", label="Edges Output", interactive=False)#setting the output
+                    btn_edges.click(fn=detect_edges, inputs=input_image, outputs=out_edges)#calling the function
 
 if __name__ == "__main__":
     demo.launch()

@@ -18,7 +18,7 @@ def save_lecturers():
 
 # GET route to return all lecturers
 @router.get(
-    "/mct/lecturers",
+    "/mct/lecturers",#
     tags=["Lecturer"],
     response_model=List[Lecturer],
     summary="Return all lecturers"
@@ -71,6 +71,29 @@ def create_lecturer(lecturer: Lecturer):
 
     # Return the newly created lecturer
     return lecturer
+
+# PUT route to update an existing lecturer by index
+@router.put(
+    "/mct/lecturers/{lecturer_id}",
+    response_model=Lecturer,
+    tags=["Lecturer"]
+)
+def update_lecturer(lecturer_id: int, update_lecturer: Lecturer):
+    # Check if the index exists in the list
+    if lecturer_id < 0 or lecturer_id >= len(lecturers):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Lecturer not found"
+        )
+
+    # Replace the old lecturer with the updated one
+    lecturers[lecturer_id] = update_lecturer.model_dump()
+
+    # Save the updated list
+    save_lecturers()
+
+    # Return the updated lecturer
+    return update_lecturer
 
 # DELETE route to remove a lecturer by index
 @router.delete("/mct/lecturers/{lecturer_id}", tags=["Lecturer"])

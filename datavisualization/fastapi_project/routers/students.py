@@ -72,6 +72,29 @@ def create_student(student: Student):
     # Return the newly created student
     return student
 
+# PUT route to update an existing student by index
+@router.put(
+    "/mct/students/{student_id}",
+    response_model=Student,
+    tags=["Student"]
+)
+def update_student(student_id: int, update_student: Student):
+    # Check if the index exists in the list
+    if student_id < 0 or student_id >= len(students):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Student not found"
+        )
+
+    # Replace the old student with the updated one
+    students[student_id] = update_student.model_dump()
+
+    # Save the updated list
+    save_students()
+
+    # Return the updated student
+    return update_student
+
 # DELETE route to remove a student by index
 @router.delete("/mct/students/{student_id}", tags=["Student"])
 def delete_student(student_id: int):

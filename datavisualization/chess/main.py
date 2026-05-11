@@ -2,9 +2,8 @@ import os
 from pieces import Pawn
 from board import Board
 
-# Clear old board state file before each run so generator output is fresh
-if os.path.exists('board.txt'):
-    os.remove('board.txt')
+if os.path.exists('board.txt'):#checking if the board.txt file exists
+    os.remove('board.txt')#removing the board.txt file
 
 # --- 1. Basic piece creation (no board) ---
 print("=== Basic piece test ===")# printing the basic piece test

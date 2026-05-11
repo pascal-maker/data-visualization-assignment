@@ -1,17 +1,17 @@
 const Product = require('./Product');
 
-class Cart {
-  constructor() {
-    this.items = [];
+class Cart {//this is a comment
+  constructor() {//constructor of the class
+    this.items = [];//array to store items
   }
 
-  addItem(product) {
-    this.items.push(product);
+  addItem(product) {//adding product to the cart
+    this.items.push(product);//adding product to the cart
   }
 
-  getItems() {
-    return this.items;
+  getItems() {//returning all items in the cart
+    return this.items;//returning all items in the cart
   }
 }
 
-module.exports = Cart;
+module.exports = Cart;//exporting the cart class
